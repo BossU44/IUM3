@@ -1,0 +1,25 @@
+   name: CI
+   on: [push, pull_request]
+   jobs:
+     test:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v4
+         - uses: actions/setup-python@v5
+           with:
+             python-version: "3.12"
+         - run: pip install -r requirements.txt
+         - run: pytest -v
+         - run: python train.py
+           env: &cfg
+             DATA_PATH: data/wine.csv
+             TARGET_COLUMN: target
+             TEST_SIZE: "0.2"
+             RANDOM_SEED: "42"
+             MODEL_TYPE: logistic_regression
+             MAX_ITER: "1000"
+             C: "1.0"
+             MODEL_PATH: models/model.joblib
+             RESULTS_PATH: wyniki.txt
+         - run: python evaluate.py
+           env: *cfg
